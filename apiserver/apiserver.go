@@ -6,10 +6,12 @@ import (
 	"net/http"
 	"time"
 
+	_ "github.com/ArtemGontar/d-wallet/docs"
 	"github.com/google/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 const (
@@ -48,7 +50,8 @@ func (s *server) configureRouter() {
 	s.router.Use(s.setRequestID)
 	s.router.Use(s.logRequest)
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
-	s.router.HandleFunc("/hello", s.handleHello()).Methods("GET")
+	s.router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
+	s.router.HandleFunc("/hello", s.handleHello).Methods("GET")
 }
 
 func (s *server) setRequestID(next http.Handler) http.Handler {
@@ -74,10 +77,16 @@ func (s *server) logRequest(next http.Handler) http.Handler {
 	})
 }
 
-func (s *server) handleHello() http.HandlerFunc {
-	return func(rw http.ResponseWriter, r *http.Request) {
-		s.respond(rw, r, http.StatusCreated, "hello")
-	}
+// SayHello godoc
+// @Summary Method to say hello
+// @Description Method to say hello
+// @Tags hello
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} string
+// @Router /hello [get]
+func (s *server) handleHello(rw http.ResponseWriter, r *http.Request) {
+	s.respond(rw, r, http.StatusCreated, "hello")
 }
 
 func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err error) {

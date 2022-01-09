@@ -8,6 +8,17 @@ import (
 	"github.com/zannen/toml"
 )
 
+// @title Crypto Wallet API
+// @version 1.0
+// @description This is a crypto wallet api
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.email info@info.info
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8080
+// @BasePath /
+
 var (
 	configPath string
 )

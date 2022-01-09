@@ -1,0 +1,30 @@
+basePath: /
+host: localhost:8080
+info:
+  contact:
+    email: soberkoder@swagger.io
+    name: API Support
+  description: This is a sample serice for managing orders
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Orders API
+  version: "1.0"
+paths:
+  /hello:
+    get:
+      consumes:
+      - application/json
+      description: Method to say hello
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Method to say hello
+      tags:
+      - hello
+swagger: "2.0"
