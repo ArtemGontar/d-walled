@@ -1,23 +1,30 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"log"
 
-	"github.com/ArtemGontar/d-wallet/wallet"
-	"github.com/ArtemGontar/d-wallet/wallets"
+	"github.com/ArtemGontar/d-wallet/apiserver"
+	"github.com/zannen/toml"
 )
 
+var (
+	configPath string
+)
+
+func init() {
+	flag.StringVar(&configPath, "config-path", "configs/apiserver.toml", "path to config file")
+}
+
 func main() {
-	req := &wallet.GetWalletInfoRequest{
-		Wallet:     "walletName",
-		Passphrase: "ssss",
-	}
-	path := "Users/anduser"
-	s, err := wallets.InitialiseStore(path)
+	flag.Parse()
+	config := apiserver.NewConfig()
+	_, err := toml.DecodeFile(configPath, config)
 	if err != nil {
-		fmt.Errorf("couldn't initialise wallets store: %w", err)
+		log.Fatal(err)
 	}
 
-	wallet.GetWalletInfo(s, req)
-
+	if err := apiserver.Start(config); err != nil {
+		log.Fatal(err)
+	}
 }
