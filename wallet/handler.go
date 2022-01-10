@@ -11,6 +11,7 @@ type Store interface {
 	WalletExists(name string) bool
 	SaveWallet(w Wallet, passphrase string) error
 	GetWallet(name, passphrase string) (Wallet, error)
+	DeleteWallet(name string) error
 	GetWalletPath(name string) string
 	ListWallets() ([]string, error)
 }
@@ -389,6 +390,15 @@ func CreateWallet(store Store, req *CreateWalletRequest) (*CreateWalletResponse,
 	resp.Key.Meta = kp.Meta()
 
 	return resp, nil
+}
+
+type DeleteWalletRequest struct {
+	Wallet string
+}
+
+func DeleteWallet(store Store, req *DeleteWalletRequest) error {
+	store.DeleteWallet(req.Wallet)
+	return nil
 }
 
 type ImportWalletRequest struct {

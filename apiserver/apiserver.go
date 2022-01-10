@@ -59,10 +59,11 @@ func (s *server) configureRouter() {
 	s.router.Use(s.logRequest)
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 	s.router.HandleFunc("/hello", s.handleHello).Methods("GET")
-	s.router.HandleFunc("/wallets/{id:string}", s.getWalletInfo).Methods("GET")
+	s.router.HandleFunc("/wallets/{id}", s.getWalletInfo).Methods("GET")
 	s.router.HandleFunc("/wallets", s.createWallet).Methods("POST")
+	s.router.HandleFunc("/wallets/import", s.importWallet).Methods("POST")
+	s.router.HandleFunc("/wallets", s.deleteWallet).Methods("DELETE")
 	s.router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
-
 }
 
 func (s *server) setRequestID(next http.Handler) http.Handler {
@@ -141,13 +142,58 @@ func (s *server) createWallet(rw http.ResponseWriter, r *http.Request) {
 		s.error(rw, r, http.StatusBadRequest, err)
 		return
 	}
-	s.logger.Infof("test %s", createWalletRequest.Wallet)
 	resp, err := wallet.CreateWallet(s.store, createWalletRequest)
 	if err != nil {
 		s.error(rw, r, http.StatusInternalServerError, err)
 	}
 
 	s.respond(rw, r, http.StatusCreated, &resp)
+}
+
+// ImportWallet godoc
+// @Summary Import wallet info
+// @Description Method for import wallet
+// @Tags wallets
+// @Accept  json
+// @Produce  json
+// @Param data body wallet.ImportWalletRequest true "The input for import wallet"
+// @Success 200 {object} wallet.ImportWalletResponse
+// @Router /wallets/import [post]
+func (s *server) importWallet(rw http.ResponseWriter, r *http.Request) {
+	importWalletRequest := &wallet.ImportWalletRequest{}
+	if err := json.NewDecoder(r.Body).Decode(importWalletRequest); err != nil {
+		s.error(rw, r, http.StatusBadRequest, err)
+		return
+	}
+	resp, err := wallet.ImportWallet(s.store, importWalletRequest)
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusCreated, &resp)
+}
+
+// DeleteWallet godoc
+// @Summary Delete wallet info
+// @Description Method for Delete wallet
+// @Tags wallets
+// @Accept  json
+// @Produce  json
+// @Param data body wallet.DeleteWalletRequest true "The input for delete wallet"
+// @Success 200 {object} nil
+// @Router /wallets [delete]
+func (s *server) deleteWallet(rw http.ResponseWriter, r *http.Request) {
+	deleteWalletRequest := &wallet.DeleteWalletRequest{}
+	if err := json.NewDecoder(r.Body).Decode(deleteWalletRequest); err != nil {
+		s.error(rw, r, http.StatusBadRequest, err)
+		return
+	}
+	err := wallet.DeleteWallet(s.store, deleteWalletRequest)
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusOK, nil)
 }
 
 func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err error) {

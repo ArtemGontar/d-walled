@@ -37,6 +37,11 @@ definitions:
             type: integer
         type: object
     type: object
+  wallet.DeleteWalletRequest:
+    properties:
+      wallet:
+        type: string
+    type: object
   wallet.GetWalletInfoResponse:
     properties:
       id:
@@ -45,6 +50,45 @@ definitions:
         type: string
       version:
         type: integer
+    type: object
+  wallet.ImportWalletRequest:
+    properties:
+      passphrase:
+        type: string
+      recoveryPhrase:
+        type: string
+      version:
+        type: integer
+      wallet:
+        type: string
+    type: object
+  wallet.ImportWalletResponse:
+    properties:
+      key:
+        properties:
+          algorithm:
+            properties:
+              name:
+                type: string
+              version:
+                type: integer
+            type: object
+          meta:
+            items:
+              $ref: '#/definitions/wallet.Meta'
+            type: array
+          publicKey:
+            type: string
+        type: object
+      wallet:
+        properties:
+          filePath:
+            type: string
+          name:
+            type: string
+          version:
+            type: integer
+        type: object
     type: object
   wallet.Meta:
     properties:
@@ -82,6 +126,25 @@ paths:
       tags:
       - hello
   /wallets:
+    delete:
+      consumes:
+      - application/json
+      description: Method for Delete wallet
+      parameters:
+      - description: The input for delete wallet
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/wallet.DeleteWalletRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete wallet info
+      tags:
+      - wallets
     post:
       consumes:
       - application/json
@@ -126,6 +189,28 @@ paths:
           schema:
             $ref: '#/definitions/wallet.GetWalletInfoResponse'
       summary: Get wallet info
+      tags:
+      - wallets
+  /wallets/import:
+    post:
+      consumes:
+      - application/json
+      description: Method for import wallet
+      parameters:
+      - description: The input for import wallet
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/wallet.ImportWalletRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wallet.ImportWalletResponse'
+      summary: Import wallet info
       tags:
       - wallets
 swagger: "2.0"

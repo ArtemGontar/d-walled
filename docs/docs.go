@@ -86,6 +86,69 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Method for Delete wallet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Delete wallet info",
+                "parameters": [
+                    {
+                        "description": "The input for delete wallet",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wallet.DeleteWalletRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/wallets/import": {
+            "post": {
+                "description": "Method for import wallet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Import wallet info",
+                "parameters": [
+                    {
+                        "description": "The input for import wallet",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wallet.ImportWalletRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wallet.ImportWalletResponse"
+                        }
+                    }
+                }
             }
         },
         "/wallets/{id}": {
@@ -186,6 +249,14 @@ var doc = `{
                 }
             }
         },
+        "wallet.DeleteWalletRequest": {
+            "type": "object",
+            "properties": {
+                "wallet": {
+                    "type": "string"
+                }
+            }
+        },
         "wallet.GetWalletInfoResponse": {
             "type": "object",
             "properties": {
@@ -197,6 +268,67 @@ var doc = `{
                 },
                 "version": {
                     "type": "integer"
+                }
+            }
+        },
+        "wallet.ImportWalletRequest": {
+            "type": "object",
+            "properties": {
+                "passphrase": {
+                    "type": "string"
+                },
+                "recoveryPhrase": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                },
+                "wallet": {
+                    "type": "string"
+                }
+            }
+        },
+        "wallet.ImportWalletResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "object",
+                    "properties": {
+                        "algorithm": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "meta": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/wallet.Meta"
+                            }
+                        },
+                        "publicKey": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "wallet": {
+                    "type": "object",
+                    "properties": {
+                        "filePath": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "integer"
+                        }
+                    }
                 }
             }
         },
