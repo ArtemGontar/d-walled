@@ -14,16 +14,16 @@ import (
 )
 
 type Store struct {
-	walletsHome string
+	walletsHomePath string
 }
 
-func InitialiseStore(walletsHome string) (*Store, error) {
-	if err := dfs.EnsureDir(walletsHome); err != nil {
-		return nil, fmt.Errorf("couldn't ensure directories at %s: %w", walletsHome, err)
+func InitialiseStore(walletsHomePath string) (*Store, error) {
+	if err := dfs.EnsureDir(walletsHomePath); err != nil {
+		return nil, fmt.Errorf("couldn't ensure directories at %s: %w", walletsHomePath, err)
 	}
 
 	return &Store{
-		walletsHome: walletsHome,
+		walletsHomePath: walletsHomePath,
 	}, nil
 }
 
@@ -48,10 +48,10 @@ func (s *Store) WalletExists(name string) bool {
 }
 
 func (s *Store) ListWallets() ([]string, error) {
-	walletsParentDir, walletsDir := filepath.Split(s.walletsHome)
+	walletsParentDir, walletsDir := filepath.Split(s.walletsHomePath)
 	entries, err := fs.ReadDir(os.DirFS(walletsParentDir), walletsDir)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't read directory at %s: %w", s.walletsHome, err)
+		return nil, fmt.Errorf("couldn't read directory at %s: %w", s.walletsHomePath, err)
 	}
 	wallets := make([]string, len(entries))
 	for i, entry := range entries {
@@ -62,9 +62,9 @@ func (s *Store) ListWallets() ([]string, error) {
 }
 
 func (s *Store) GetWallet(name, passphrase string) (wallet.Wallet, error) {
-	buf, err := fs.ReadFile(os.DirFS(s.walletsHome), name)
+	buf, err := fs.ReadFile(os.DirFS(s.walletsHomePath), name)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't read file at %s: %w", s.walletsHome, err)
+		return nil, fmt.Errorf("couldn't read file at %s: %w", s.walletsHomePath, err)
 	}
 
 	decBuf, err := dcrypto.Decrypt(buf, passphrase)
@@ -121,5 +121,5 @@ func (s *Store) GetWalletPath(name string) string {
 }
 
 func (s *Store) walletPath(name string) string {
-	return filepath.Join(s.walletsHome, name)
+	return filepath.Join(s.walletsHomePath, name)
 }

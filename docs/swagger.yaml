@@ -1,15 +1,69 @@
 basePath: /
+definitions:
+  wallet.CreateWalletRequest:
+    properties:
+      passphrase:
+        type: string
+      wallet:
+        type: string
+    type: object
+  wallet.CreateWalletResponse:
+    properties:
+      key:
+        properties:
+          algorithm:
+            properties:
+              name:
+                type: string
+              version:
+                type: integer
+            type: object
+          meta:
+            items:
+              $ref: '#/definitions/wallet.Meta'
+            type: array
+          publicKey:
+            type: string
+        type: object
+      wallet:
+        properties:
+          filePath:
+            type: string
+          name:
+            type: string
+          recoveryPhrase:
+            type: string
+          version:
+            type: integer
+        type: object
+    type: object
+  wallet.GetWalletInfoResponse:
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+      version:
+        type: integer
+    type: object
+  wallet.Meta:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
-    email: soberkoder@swagger.io
+    email: info@info.info
     name: API Support
-  description: This is a sample serice for managing orders
+  description: This is a crypto wallet api
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Orders API
+  title: Crypto Wallet API
   version: "1.0"
 paths:
   /hello:
@@ -27,4 +81,51 @@ paths:
       summary: Method to say hello
       tags:
       - hello
+  /wallets:
+    post:
+      consumes:
+      - application/json
+      description: Method for create wallet
+      parameters:
+      - description: The input for create wallet
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/wallet.CreateWalletRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wallet.CreateWalletResponse'
+      summary: Create wallet info
+      tags:
+      - wallets
+  /wallets/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Method for get wallet info
+      parameters:
+      - description: Wallet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Pass phrase
+        in: query
+        name: passphrase
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wallet.GetWalletInfoResponse'
+      summary: Get wallet info
+      tags:
+      - wallets
 swagger: "2.0"

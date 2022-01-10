@@ -20,7 +20,7 @@ var doc = `{
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
-            "email": "soberkoder@swagger.io"
+            "email": "info@info.info"
         },
         "license": {
             "name": "Apache 2.0",
@@ -53,6 +53,163 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/wallets": {
+            "post": {
+                "description": "Method for create wallet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Create wallet info",
+                "parameters": [
+                    {
+                        "description": "The input for create wallet",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wallet.CreateWalletRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wallet.CreateWalletResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/wallets/{id}": {
+            "get": {
+                "description": "Method for get wallet info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Get wallet info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Wallet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Pass phrase",
+                        "name": "passphrase",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wallet.GetWalletInfoResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "wallet.CreateWalletRequest": {
+            "type": "object",
+            "properties": {
+                "passphrase": {
+                    "type": "string"
+                },
+                "wallet": {
+                    "type": "string"
+                }
+            }
+        },
+        "wallet.CreateWalletResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "object",
+                    "properties": {
+                        "algorithm": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "meta": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/wallet.Meta"
+                            }
+                        },
+                        "publicKey": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "wallet": {
+                    "type": "object",
+                    "properties": {
+                        "filePath": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "recoveryPhrase": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "integer"
+                        }
+                    }
+                }
+            }
+        },
+        "wallet.GetWalletInfoResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "wallet.Meta": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
@@ -72,8 +229,8 @@ var SwaggerInfo = swaggerInfo{
 	Host:        "localhost:8080",
 	BasePath:    "/",
 	Schemes:     []string{},
-	Title:       "Orders API",
-	Description: "This is a sample serice for managing orders",
+	Title:       "Crypto Wallet API",
+	Description: "This is a crypto wallet api",
 }
 
 type s struct{}

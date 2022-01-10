@@ -7,6 +7,8 @@ import (
 	"time"
 
 	_ "github.com/ArtemGontar/d-wallet/docs"
+	"github.com/ArtemGontar/d-wallet/wallet"
+	walletstore "github.com/ArtemGontar/d-wallet/wallet/store"
 	"github.com/google/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -27,14 +29,20 @@ func Start(config *Config) error {
 type server struct {
 	router *mux.Router
 	logger *logrus.Logger
+	store  *walletstore.Store
 }
 
 type ctxKey int8
 
 func newServer() *server {
+	store, err := walletstore.InitialiseStore("wallets1111")
+	if err != nil {
+		return &server{}
+	}
 	s := &server{
 		router: mux.NewRouter(),
 		logger: logrus.New(),
+		store:  store,
 	}
 
 	s.configureRouter()
@@ -50,8 +58,11 @@ func (s *server) configureRouter() {
 	s.router.Use(s.setRequestID)
 	s.router.Use(s.logRequest)
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
-	s.router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 	s.router.HandleFunc("/hello", s.handleHello).Methods("GET")
+	s.router.HandleFunc("/wallets/{id:string}", s.getWalletInfo).Methods("GET")
+	s.router.HandleFunc("/wallets", s.createWallet).Methods("POST")
+	s.router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
+
 }
 
 func (s *server) setRequestID(next http.Handler) http.Handler {
@@ -87,6 +98,56 @@ func (s *server) logRequest(next http.Handler) http.Handler {
 // @Router /hello [get]
 func (s *server) handleHello(rw http.ResponseWriter, r *http.Request) {
 	s.respond(rw, r, http.StatusCreated, "hello")
+}
+
+// GetWallet godoc
+// @Summary Get wallet info
+// @Description Method for get wallet info
+// @Tags wallets
+// @Accept  json
+// @Produce  json
+// @Param  id         path   string     true   "Wallet ID"
+// @Param  passphrase query  string  false  "Pass phrase"
+// @Success 200 {object} wallet.GetWalletInfoResponse
+// @Router /wallets/{id} [get]
+func (s *server) getWalletInfo(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	walletId := vars["id"]
+	passphrase := r.URL.Query().Get("passphrase")
+	s.logger.Infof("test %s %s", walletId, passphrase)
+	resp, err := wallet.GetWalletInfo(s.store, &wallet.GetWalletInfoRequest{
+		Wallet:     walletId,
+		Passphrase: passphrase,
+	})
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusCreated, &resp)
+}
+
+// CreateWallet godoc
+// @Summary Create wallet info
+// @Description Method for create wallet
+// @Tags wallets
+// @Accept  json
+// @Produce  json
+// @Param data body wallet.CreateWalletRequest true "The input for create wallet"
+// @Success 200 {object} wallet.CreateWalletResponse
+// @Router /wallets [post]
+func (s *server) createWallet(rw http.ResponseWriter, r *http.Request) {
+	createWalletRequest := &wallet.CreateWalletRequest{}
+	if err := json.NewDecoder(r.Body).Decode(createWalletRequest); err != nil {
+		s.error(rw, r, http.StatusBadRequest, err)
+		return
+	}
+	s.logger.Infof("test %s", createWalletRequest.Wallet)
+	resp, err := wallet.CreateWallet(s.store, createWalletRequest)
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusCreated, &resp)
 }
 
 func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err error) {
