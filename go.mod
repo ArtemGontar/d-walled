@@ -32,6 +32,9 @@ require (
 	github.com/swaggo/swag v1.7.8 // indirect
 	github.com/urfave/cli/v2 v2.3.0 // indirect
 	github.com/zannen/toml v0.3.2 // indirect
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.20.0 // indirect
 	golang.org/x/net v0.0.0-20220107192237-5cfca573fb4d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.8 // indirect

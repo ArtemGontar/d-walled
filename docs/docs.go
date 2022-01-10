@@ -54,6 +54,126 @@ var doc = `{
                 }
             }
         },
+        "/networks": {
+            "delete": {
+                "description": "Method for Delete network",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "networks"
+                ],
+                "summary": "Delete network info",
+                "parameters": [
+                    {
+                        "description": "The input for delete network",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/network.DeleteNetworkRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/networks/": {
+            "get": {
+                "description": "Method for get networks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "networks"
+                ],
+                "summary": "Get networks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/network.ListNetworksResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/networks/import": {
+            "post": {
+                "description": "Method for import network",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "networks"
+                ],
+                "summary": "Import network info",
+                "parameters": [
+                    {
+                        "description": "The input for import network",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/network.ImportNetworkFromSourceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/network.ImportNetworkFromSourceResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/networks/{name}": {
+            "get": {
+                "description": "Method for get network info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "networks"
+                ],
+                "summary": "Get network info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Network name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/network.DescribeNetworkResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/wallets": {
             "post": {
                 "description": "Method for create wallet",
@@ -113,6 +233,29 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/wallets/": {
+            "get": {
+                "description": "Method for get wallets list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Get wallets list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wallet.ListWalletsResponse"
+                        }
                     }
                 }
             }
@@ -191,6 +334,125 @@ var doc = `{
         }
     },
     "definitions": {
+        "network.DeleteNetworkRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "network.DescribeNetworkResponse": {
+            "type": "object",
+            "properties": {
+                "api": {
+                    "type": "object",
+                    "properties": {
+                        "graphQLConfig": {
+                            "type": "object",
+                            "properties": {
+                                "hosts": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        },
+                        "grpcConfig": {
+                            "type": "object",
+                            "properties": {
+                                "hosts": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "retries": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "restConfig": {
+                            "type": "object",
+                            "properties": {
+                                "hosts": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "console": {
+                    "type": "object",
+                    "properties": {
+                        "localPort": {
+                            "type": "integer"
+                        },
+                        "url": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "host": {
+                    "type": "string"
+                },
+                "logLevel": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                },
+                "tokenExpiry": {
+                    "type": "string"
+                }
+            }
+        },
+        "network.ImportNetworkFromSourceRequest": {
+            "type": "object",
+            "properties": {
+                "filePath": {
+                    "type": "string"
+                },
+                "force": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "network.ImportNetworkFromSourceResponse": {
+            "type": "object",
+            "properties": {
+                "filePath": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "network.ListNetworksResponse": {
+            "type": "object",
+            "properties": {
+                "networks": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "wallet.CreateWalletRequest": {
             "type": "object",
             "properties": {
@@ -328,6 +590,17 @@ var doc = `{
                         "version": {
                             "type": "integer"
                         }
+                    }
+                }
+            }
+        },
+        "wallet.ListWalletsResponse": {
+            "type": "object",
+            "properties": {
+                "wallets": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
                     }
                 }
             }

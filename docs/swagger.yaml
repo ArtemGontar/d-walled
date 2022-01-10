@@ -1,5 +1,81 @@
 basePath: /
 definitions:
+  network.DeleteNetworkRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  network.DescribeNetworkResponse:
+    properties:
+      api:
+        properties:
+          graphQLConfig:
+            properties:
+              hosts:
+                items:
+                  type: string
+                type: array
+            type: object
+          grpcConfig:
+            properties:
+              hosts:
+                items:
+                  type: string
+                type: array
+              retries:
+                type: integer
+            type: object
+          restConfig:
+            properties:
+              hosts:
+                items:
+                  type: string
+                type: array
+            type: object
+        type: object
+      console:
+        properties:
+          localPort:
+            type: integer
+          url:
+            type: string
+        type: object
+      host:
+        type: string
+      logLevel:
+        type: string
+      name:
+        type: string
+      port:
+        type: integer
+      tokenExpiry:
+        type: string
+    type: object
+  network.ImportNetworkFromSourceRequest:
+    properties:
+      filePath:
+        type: string
+      force:
+        type: boolean
+      name:
+        type: string
+      url:
+        type: string
+    type: object
+  network.ImportNetworkFromSourceResponse:
+    properties:
+      filePath:
+        type: string
+      name:
+        type: string
+    type: object
+  network.ListNetworksResponse:
+    properties:
+      networks:
+        items:
+          type: string
+        type: array
+    type: object
   wallet.CreateWalletRequest:
     properties:
       passphrase:
@@ -90,6 +166,13 @@ definitions:
             type: integer
         type: object
     type: object
+  wallet.ListWalletsResponse:
+    properties:
+      wallets:
+        items:
+          type: string
+        type: array
+    type: object
   wallet.Meta:
     properties:
       key:
@@ -125,6 +208,84 @@ paths:
       summary: Method to say hello
       tags:
       - hello
+  /networks:
+    delete:
+      consumes:
+      - application/json
+      description: Method for Delete network
+      parameters:
+      - description: The input for delete network
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/network.DeleteNetworkRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Delete network info
+      tags:
+      - networks
+  /networks/:
+    get:
+      consumes:
+      - application/json
+      description: Method for get networks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/network.ListNetworksResponse'
+      summary: Get networks
+      tags:
+      - networks
+  /networks/{name}:
+    get:
+      consumes:
+      - application/json
+      description: Method for get network info
+      parameters:
+      - description: Network name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/network.DescribeNetworkResponse'
+      summary: Get network info
+      tags:
+      - networks
+  /networks/import:
+    post:
+      consumes:
+      - application/json
+      description: Method for import network
+      parameters:
+      - description: The input for import network
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/network.ImportNetworkFromSourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/network.ImportNetworkFromSourceResponse'
+      summary: Import network info
+      tags:
+      - networks
   /wallets:
     delete:
       consumes:
@@ -164,6 +325,21 @@ paths:
           schema:
             $ref: '#/definitions/wallet.CreateWalletResponse'
       summary: Create wallet info
+      tags:
+      - wallets
+  /wallets/:
+    get:
+      consumes:
+      - application/json
+      description: Method for get wallets list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wallet.ListWalletsResponse'
+      summary: Get wallets list
       tags:
       - wallets
   /wallets/{id}:

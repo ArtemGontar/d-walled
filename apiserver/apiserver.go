@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"time"
 
+	"code.vegaprotocol.io/shared/paths"
 	_ "github.com/ArtemGontar/d-wallet/docs"
+	"github.com/ArtemGontar/d-wallet/network"
+	netstore "github.com/ArtemGontar/d-wallet/network/store/v1"
 	"github.com/ArtemGontar/d-wallet/wallet"
 	walletstore "github.com/ArtemGontar/d-wallet/wallet/store"
 	"github.com/google/uuid"
@@ -27,22 +30,25 @@ func Start(config *Config) error {
 }
 
 type server struct {
-	router *mux.Router
-	logger *logrus.Logger
-	store  *walletstore.Store
+	router       *mux.Router
+	logger       *logrus.Logger
+	walletStore  *walletstore.Store
+	networkStore *netstore.Store
 }
 
 type ctxKey int8
 
 func newServer() *server {
-	store, err := walletstore.InitialiseStore("wallets1111")
-	if err != nil {
+	walletStore, walletErr := walletstore.InitialiseStore("wallets1111")
+	networkStore, networkErr := netstore.InitialiseStore(paths.New("network11111"))
+	if walletErr != nil || networkErr != nil {
 		return &server{}
 	}
 	s := &server{
-		router: mux.NewRouter(),
-		logger: logrus.New(),
-		store:  store,
+		router:       mux.NewRouter(),
+		logger:       logrus.New(),
+		walletStore:  walletStore,
+		networkStore: networkStore,
 	}
 
 	s.configureRouter()
@@ -59,10 +65,20 @@ func (s *server) configureRouter() {
 	s.router.Use(s.logRequest)
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 	s.router.HandleFunc("/hello", s.handleHello).Methods("GET")
+	//wallets
+	s.router.HandleFunc("/wallets", s.getListWallets).Methods("GET")
 	s.router.HandleFunc("/wallets/{id}", s.getWalletInfo).Methods("GET")
 	s.router.HandleFunc("/wallets", s.createWallet).Methods("POST")
 	s.router.HandleFunc("/wallets/import", s.importWallet).Methods("POST")
 	s.router.HandleFunc("/wallets", s.deleteWallet).Methods("DELETE")
+
+	//network
+	s.router.HandleFunc("/network", s.getNetworks).Methods("GET")
+	s.router.HandleFunc("/network/{name}", s.getNetworkInfo).Methods("GET")
+	s.router.HandleFunc("/network/import", s.importNetwork).Methods("POST")
+	s.router.HandleFunc("/network", s.deleteNetwork).Methods("DELETE")
+
+	//swagger
 	s.router.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 }
 
@@ -101,6 +117,23 @@ func (s *server) handleHello(rw http.ResponseWriter, r *http.Request) {
 	s.respond(rw, r, http.StatusCreated, "hello")
 }
 
+// GetListWallets godoc
+// @Summary Get wallets list
+// @Description Method for get wallets list
+// @Tags wallets
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} wallet.ListWalletsResponse
+// @Router /wallets/ [get]
+func (s *server) getListWallets(rw http.ResponseWriter, r *http.Request) {
+	resp, err := wallet.ListWallets(s.walletStore)
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusCreated, &resp)
+}
+
 // GetWallet godoc
 // @Summary Get wallet info
 // @Description Method for get wallet info
@@ -115,8 +148,7 @@ func (s *server) getWalletInfo(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	walletId := vars["id"]
 	passphrase := r.URL.Query().Get("passphrase")
-	s.logger.Infof("test %s %s", walletId, passphrase)
-	resp, err := wallet.GetWalletInfo(s.store, &wallet.GetWalletInfoRequest{
+	resp, err := wallet.GetWalletInfo(s.walletStore, &wallet.GetWalletInfoRequest{
 		Wallet:     walletId,
 		Passphrase: passphrase,
 	})
@@ -142,7 +174,7 @@ func (s *server) createWallet(rw http.ResponseWriter, r *http.Request) {
 		s.error(rw, r, http.StatusBadRequest, err)
 		return
 	}
-	resp, err := wallet.CreateWallet(s.store, createWalletRequest)
+	resp, err := wallet.CreateWallet(s.walletStore, createWalletRequest)
 	if err != nil {
 		s.error(rw, r, http.StatusInternalServerError, err)
 	}
@@ -165,7 +197,7 @@ func (s *server) importWallet(rw http.ResponseWriter, r *http.Request) {
 		s.error(rw, r, http.StatusBadRequest, err)
 		return
 	}
-	resp, err := wallet.ImportWallet(s.store, importWalletRequest)
+	resp, err := wallet.ImportWallet(s.walletStore, importWalletRequest)
 	if err != nil {
 		s.error(rw, r, http.StatusInternalServerError, err)
 	}
@@ -188,7 +220,93 @@ func (s *server) deleteWallet(rw http.ResponseWriter, r *http.Request) {
 		s.error(rw, r, http.StatusBadRequest, err)
 		return
 	}
-	err := wallet.DeleteWallet(s.store, deleteWalletRequest)
+	err := wallet.DeleteWallet(s.walletStore, deleteWalletRequest)
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusOK, nil)
+}
+
+// GetNetworks godoc
+// @Summary Get networks
+// @Description Method for get networks
+// @Tags networks
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} network.ListNetworksResponse
+// @Router /networks/ [get]
+func (s *server) getNetworks(rw http.ResponseWriter, r *http.Request) {
+	resp, err := network.ListNetworks(s.networkStore)
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusCreated, &resp)
+}
+
+// GetNetwork godoc
+// @Summary Get network info
+// @Description Method for get network info
+// @Tags networks
+// @Accept  json
+// @Produce  json
+// @Param  name   path   string   true   "Network name"
+// @Success 200 {object} network.DescribeNetworkResponse
+// @Router /networks/{name} [get]
+func (s *server) getNetworkInfo(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["name"]
+	resp, err := network.DescribeNetwork(s.networkStore, &network.DescribeNetworkRequest{
+		Name: name,
+	})
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusCreated, &resp)
+}
+
+// ImportNetwork godoc
+// @Summary Import network info
+// @Description Method for import network
+// @Tags networks
+// @Accept  json
+// @Produce  json
+// @Param data body network.ImportNetworkFromSourceRequest true "The input for import network"
+// @Success 200 {object} network.ImportNetworkFromSourceResponse
+// @Router /networks/import [post]
+func (s *server) importNetwork(rw http.ResponseWriter, r *http.Request) {
+	importNetworkRequest := &network.ImportNetworkFromSourceRequest{}
+	if err := json.NewDecoder(r.Body).Decode(importNetworkRequest); err != nil {
+		s.error(rw, r, http.StatusBadRequest, err)
+		return
+	}
+	resp, err := network.ImportNetworkFromSource(s.networkStore,
+		network.NewReaders(), importNetworkRequest)
+	if err != nil {
+		s.error(rw, r, http.StatusInternalServerError, err)
+	}
+
+	s.respond(rw, r, http.StatusCreated, &resp)
+}
+
+// DeleteNetwork godoc
+// @Summary Delete network info
+// @Description Method for Delete network
+// @Tags networks
+// @Accept  json
+// @Produce  json
+// @Param data body network.DeleteNetworkRequest true "The input for delete network"
+// @Success 200 {object} nil
+// @Router /networks [delete]
+func (s *server) deleteNetwork(rw http.ResponseWriter, r *http.Request) {
+	deleteNetworkRequest := &network.DeleteNetworkRequest{}
+	if err := json.NewDecoder(r.Body).Decode(deleteNetworkRequest); err != nil {
+		s.error(rw, r, http.StatusBadRequest, err)
+		return
+	}
+	err := network.DeleteNetwork(s.networkStore, deleteNetworkRequest)
 	if err != nil {
 		s.error(rw, r, http.StatusInternalServerError, err)
 	}
