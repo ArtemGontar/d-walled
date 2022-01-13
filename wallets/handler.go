@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/ArtemGontar/d-wallet/wallet"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
 )
 
 var ErrWalletDoesNotExists = errors.New("wallet does not exist")
@@ -22,7 +23,7 @@ type Store interface {
 type Handler struct {
 	store         Store
 	loggedWallets wallets
-
+	keystore      *keystore.KeyStore
 	// just to make sure we do not access same file concurrently or the map
 	mu sync.RWMutex
 }
@@ -31,6 +32,7 @@ func NewHandler(store Store) *Handler {
 	return &Handler{
 		store:         store,
 		loggedWallets: newWallets(),
+		keystore:      keystore.NewKeyStore("path/to/keystore", keystore.StandardScryptN, keystore.StandardScryptP),
 	}
 }
 
