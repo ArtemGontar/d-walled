@@ -6,9 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"code.vegaprotocol.io/shared/paths"
 	_ "github.com/ArtemGontar/d-wallet/docs"
-	netstore "github.com/ArtemGontar/d-wallet/network/store/v1"
 	walletstore "github.com/ArtemGontar/d-wallet/wallet/store"
 	"github.com/google/uuid"
 	"github.com/gorilla/handlers"
@@ -28,25 +26,22 @@ func Start(config *Config) error {
 }
 
 type server struct {
-	router       *mux.Router
-	logger       *logrus.Logger
-	walletStore  *walletstore.Store
-	networkStore *netstore.Store
+	router      *mux.Router
+	logger      *logrus.Logger
+	walletStore *walletstore.Store
 }
 
 type ctxKey int8
 
 func newServer() *server {
 	walletStore, walletErr := walletstore.InitialiseStore("wallets1111")
-	networkStore, networkErr := netstore.InitialiseStore(paths.New("network11111"))
-	if walletErr != nil || networkErr != nil {
+	if walletErr != nil {
 		return &server{}
 	}
 	s := &server{
-		router:       mux.NewRouter(),
-		logger:       logrus.New(),
-		walletStore:  walletStore,
-		networkStore: networkStore,
+		router:      mux.NewRouter(),
+		logger:      logrus.New(),
+		walletStore: walletStore,
 	}
 
 	s.configureRouter()
