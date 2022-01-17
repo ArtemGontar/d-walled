@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"code.vegaprotocol.io/shared/paths"
 	_ "github.com/ArtemGontar/d-wallet/docs"
 	netstore "github.com/ArtemGontar/d-wallet/network/store/v1"
 	walletstore "github.com/ArtemGontar/d-wallet/wallet/store"
@@ -37,16 +36,10 @@ type server struct {
 type ctxKey int8
 
 func newServer() *server {
-	walletStore, walletErr := walletstore.InitialiseStore("wallets1111")
-	networkStore, networkErr := netstore.InitialiseStore(paths.New("network11111"))
-	if walletErr != nil || networkErr != nil {
-		return &server{}
-	}
+
 	s := &server{
-		router:       mux.NewRouter(),
-		logger:       logrus.New(),
-		walletStore:  walletStore,
-		networkStore: networkStore,
+		router: mux.NewRouter(),
+		logger: logrus.New(),
 	}
 
 	s.configureRouter()
@@ -64,10 +57,10 @@ func (s *server) configureRouter() {
 	s.router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 	s.router.HandleFunc("/hello", s.handleHello).Methods("GET")
 	//wallets
-	s.router.HandleFunc("/wallets", s.getListWallets).Methods("GET")
-	s.router.HandleFunc("/wallets/{id}", s.getWalletInfo).Methods("GET")
+	//s.router.HandleFunc("/wallets", s.getListWallets).Methods("GET")
+	s.router.HandleFunc("/wallets/{address}", s.getWalletInfo).Methods("GET")
 	s.router.HandleFunc("/wallets", s.createWallet).Methods("POST")
-	s.router.HandleFunc("/wallets/import", s.importWallet).Methods("POST")
+	//s.router.HandleFunc("/wallets/import", s.importWallet).Methods("POST")
 	s.router.HandleFunc("/wallets", s.deleteWallet).Methods("DELETE")
 
 	//network

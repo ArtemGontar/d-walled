@@ -8,22 +8,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// GetListWallets godoc
-// @Summary Get wallets list
-// @Description Method for get wallets list
-// @Tags wallets
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} wallet.ListWalletsResponse
-// @Router /wallets/ [get]
-func (s *server) getListWallets(rw http.ResponseWriter, r *http.Request) {
-	resp, err := wallet.ListWallets(s.walletStore)
-	if err != nil {
-		s.error(rw, r, http.StatusInternalServerError, err)
-	}
+// // GetListWallets godoc
+// // @Summary Get wallets list
+// // @Description Method for get wallets list
+// // @Tags wallets
+// // @Accept  json
+// // @Produce  json
+// // @Success 200 {object} wallet.ListWalletsResponse
+// // @Router /wallets/ [get]
+// func (s *server) getListWallets(rw http.ResponseWriter, r *http.Request) {
+// 	resp, err := wallet.ListWallets(s.walletStore)
+// 	if err != nil {
+// 		s.error(rw, r, http.StatusInternalServerError, err)
+// 	}
 
-	s.respond(rw, r, http.StatusCreated, &resp)
-}
+// 	s.respond(rw, r, http.StatusCreated, &resp)
+// }
 
 // GetWallet godoc
 // @Summary Get wallet info
@@ -31,17 +31,15 @@ func (s *server) getListWallets(rw http.ResponseWriter, r *http.Request) {
 // @Tags wallets
 // @Accept  json
 // @Produce  json
-// @Param  id         path   string     true   "Wallet ID"
+// @Param  address         path   string     true   "Wallet Address"
 // @Param  passphrase query  string  false  "Pass phrase"
 // @Success 200 {object} wallet.GetWalletInfoResponse
-// @Router /wallets/{id} [get]
+// @Router /wallets/{address} [get]
 func (s *server) getWalletInfo(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	walletId := vars["id"]
-	passphrase := r.URL.Query().Get("passphrase")
+	address := vars["address"]
 	resp, err := wallet.GetWalletInfo(s.walletStore, &wallet.GetWalletInfoRequest{
-		Wallet:     walletId,
-		Passphrase: passphrase,
+		Address: address,
 	})
 	if err != nil {
 		s.error(rw, r, http.StatusInternalServerError, err)

@@ -237,64 +237,7 @@ var doc = `{
                 }
             }
         },
-        "/wallets/": {
-            "get": {
-                "description": "Method for get wallets list",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "wallets"
-                ],
-                "summary": "Get wallets list",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/wallet.ListWalletsResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/wallets/import": {
-            "post": {
-                "description": "Method for import wallet",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "wallets"
-                ],
-                "summary": "Import wallet info",
-                "parameters": [
-                    {
-                        "description": "The input for import wallet",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/wallet.ImportWalletRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/wallet.ImportWalletResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/wallets/{id}": {
+        "/wallets/{address}": {
             "get": {
                 "description": "Method for get wallet info",
                 "consumes": [
@@ -310,8 +253,8 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Wallet ID",
-                        "name": "id",
+                        "description": "Wallet Address",
+                        "name": "address",
                         "in": "path",
                         "required": true
                     },
@@ -334,6 +277,9 @@ var doc = `{
         }
     },
     "definitions": {
+        "big.Int": {
+            "type": "object"
+        },
         "network.DeleteNetworkRequest": {
             "type": "object",
             "properties": {
@@ -454,60 +400,13 @@ var doc = `{
             }
         },
         "wallet.CreateWalletRequest": {
-            "type": "object",
-            "properties": {
-                "passphrase": {
-                    "type": "string"
-                },
-                "wallet": {
-                    "type": "string"
-                }
-            }
+            "type": "object"
         },
         "wallet.CreateWalletResponse": {
             "type": "object",
             "properties": {
-                "key": {
-                    "type": "object",
-                    "properties": {
-                        "algorithm": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "version": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "meta": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/wallet.Meta"
-                            }
-                        },
-                        "publicKey": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "wallet": {
-                    "type": "object",
-                    "properties": {
-                        "filePath": {
-                            "type": "string"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "recoveryPhrase": {
-                            "type": "string"
-                        },
-                        "version": {
-                            "type": "integer"
-                        }
-                    }
+                "address": {
+                    "type": "string"
                 }
             }
         },
@@ -522,97 +421,11 @@ var doc = `{
         "wallet.GetWalletInfoResponse": {
             "type": "object",
             "properties": {
-                "id": {
+                "address": {
                     "type": "string"
                 },
-                "type": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "integer"
-                }
-            }
-        },
-        "wallet.ImportWalletRequest": {
-            "type": "object",
-            "properties": {
-                "passphrase": {
-                    "type": "string"
-                },
-                "recoveryPhrase": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "integer"
-                },
-                "wallet": {
-                    "type": "string"
-                }
-            }
-        },
-        "wallet.ImportWalletResponse": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "object",
-                    "properties": {
-                        "algorithm": {
-                            "type": "object",
-                            "properties": {
-                                "name": {
-                                    "type": "string"
-                                },
-                                "version": {
-                                    "type": "integer"
-                                }
-                            }
-                        },
-                        "meta": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/wallet.Meta"
-                            }
-                        },
-                        "publicKey": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "wallet": {
-                    "type": "object",
-                    "properties": {
-                        "filePath": {
-                            "type": "string"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "version": {
-                            "type": "integer"
-                        }
-                    }
-                }
-            }
-        },
-        "wallet.ListWalletsResponse": {
-            "type": "object",
-            "properties": {
-                "wallets": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "wallet.Meta": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "value": {
-                    "type": "string"
+                "balance": {
+                    "$ref": "#/definitions/big.Int"
                 }
             }
         }

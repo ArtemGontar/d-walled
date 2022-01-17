@@ -1,5 +1,7 @@
 basePath: /
 definitions:
+  big.Int:
+    type: object
   network.DeleteNetworkRequest:
     properties:
       name:
@@ -77,41 +79,11 @@ definitions:
         type: array
     type: object
   wallet.CreateWalletRequest:
-    properties:
-      passphrase:
-        type: string
-      wallet:
-        type: string
     type: object
   wallet.CreateWalletResponse:
     properties:
-      key:
-        properties:
-          algorithm:
-            properties:
-              name:
-                type: string
-              version:
-                type: integer
-            type: object
-          meta:
-            items:
-              $ref: '#/definitions/wallet.Meta'
-            type: array
-          publicKey:
-            type: string
-        type: object
-      wallet:
-        properties:
-          filePath:
-            type: string
-          name:
-            type: string
-          recoveryPhrase:
-            type: string
-          version:
-            type: integer
-        type: object
+      address:
+        type: string
     type: object
   wallet.DeleteWalletRequest:
     properties:
@@ -120,65 +92,10 @@ definitions:
     type: object
   wallet.GetWalletInfoResponse:
     properties:
-      id:
+      address:
         type: string
-      type:
-        type: string
-      version:
-        type: integer
-    type: object
-  wallet.ImportWalletRequest:
-    properties:
-      passphrase:
-        type: string
-      recoveryPhrase:
-        type: string
-      version:
-        type: integer
-      wallet:
-        type: string
-    type: object
-  wallet.ImportWalletResponse:
-    properties:
-      key:
-        properties:
-          algorithm:
-            properties:
-              name:
-                type: string
-              version:
-                type: integer
-            type: object
-          meta:
-            items:
-              $ref: '#/definitions/wallet.Meta'
-            type: array
-          publicKey:
-            type: string
-        type: object
-      wallet:
-        properties:
-          filePath:
-            type: string
-          name:
-            type: string
-          version:
-            type: integer
-        type: object
-    type: object
-  wallet.ListWalletsResponse:
-    properties:
-      wallets:
-        items:
-          type: string
-        type: array
-    type: object
-  wallet.Meta:
-    properties:
-      key:
-        type: string
-      value:
-        type: string
+      balance:
+        $ref: '#/definitions/big.Int'
     type: object
 host: localhost:8080
 info:
@@ -327,30 +244,15 @@ paths:
       summary: Create wallet info
       tags:
       - wallets
-  /wallets/:
-    get:
-      consumes:
-      - application/json
-      description: Method for get wallets list
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/wallet.ListWalletsResponse'
-      summary: Get wallets list
-      tags:
-      - wallets
-  /wallets/{id}:
+  /wallets/{address}:
     get:
       consumes:
       - application/json
       description: Method for get wallet info
       parameters:
-      - description: Wallet ID
+      - description: Wallet Address
         in: path
-        name: id
+        name: address
         required: true
         type: string
       - description: Pass phrase
@@ -365,28 +267,6 @@ paths:
           schema:
             $ref: '#/definitions/wallet.GetWalletInfoResponse'
       summary: Get wallet info
-      tags:
-      - wallets
-  /wallets/import:
-    post:
-      consumes:
-      - application/json
-      description: Method for import wallet
-      parameters:
-      - description: The input for import wallet
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/wallet.ImportWalletRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/wallet.ImportWalletResponse'
-      summary: Import wallet info
       tags:
       - wallets
 swagger: "2.0"
