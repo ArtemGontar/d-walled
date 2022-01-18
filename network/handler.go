@@ -125,8 +125,6 @@ func DescribeNetwork(store Store, req *DescribeNetworkRequest) (*DescribeNetwork
 	}
 
 	resp.Name = net.Name
-	resp.TokenExpiry = net.TokenExpiry.String()
-	resp.Level = net.Level.String()
 	resp.Host = net.Host
 	resp.Port = net.Port
 	resp.API.GRPCConfig.Hosts = net.API.GRPC.Hosts

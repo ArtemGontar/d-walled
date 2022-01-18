@@ -9,6 +9,7 @@ import (
 	_ "github.com/ArtemGontar/d-wallet/docs"
 	netstore "github.com/ArtemGontar/d-wallet/network/store/v1"
 	walletstore "github.com/ArtemGontar/d-wallet/wallet/store"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/google/uuid"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -29,6 +30,7 @@ func Start(config *Config) error {
 type server struct {
 	router       *mux.Router
 	logger       *logrus.Logger
+	ethclient    *ethclient.Client
 	walletStore  *walletstore.Store
 	networkStore *netstore.Store
 }
@@ -37,9 +39,20 @@ type ctxKey int8
 
 func newServer() *server {
 
+	walletStore, err := walletstore.InitialiseStore("./wallets")
+	if err != nil {
+		return nil
+	}
+
+	ethclient, err := ethclient.DialContext(context.Background(), "")
+	if err != nil {
+		return nil
+	}
 	s := &server{
-		router: mux.NewRouter(),
-		logger: logrus.New(),
+		router:      mux.NewRouter(),
+		logger:      logrus.New(),
+		walletStore: walletStore,
+		ethclient:   ethclient,
 	}
 
 	s.configureRouter()

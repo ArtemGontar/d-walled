@@ -4,11 +4,13 @@ import (
 	"fmt"
 
 	dfs "github.com/ArtemGontar/d-wallet/fs"
-	"github.com/ArtemGontar/d-wallet/wallet"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
 )
 
 type Store struct {
 	walletsHomePath string
+	keystore        *keystore.KeyStore
 }
 
 func InitialiseStore(walletsHomePath string) (*Store, error) {
@@ -18,10 +20,11 @@ func InitialiseStore(walletsHomePath string) (*Store, error) {
 
 	return &Store{
 		walletsHomePath: walletsHomePath,
+		keystore:        keystore.NewKeyStore(walletsHomePath, keystore.StandardScryptN, keystore.StandardScryptP),
 	}, nil
 }
 
-func (s *Store) WalletExists(name string) bool {
+func (s *Store) WalletExists(address string) bool {
 	return false
 }
 
@@ -29,12 +32,16 @@ func (s *Store) ListWallets() ([]string, error) {
 	return nil, nil
 }
 
-func (s *Store) GetWallet(name, passphrase string) (wallet.Wallet, error) {
-	return nil, nil
+func (s *Store) GetWallet(privateKey string, passphrase string) (string, error) {
+	return "nil", nil
 }
 
-func (s *Store) SaveWallet(w wallet.Wallet, passphrase string) error {
-	return nil
+func (s *Store) SaveWallet(passphrase string) (accounts.Account, error) {
+	account, err := s.keystore.NewAccount(passphrase)
+	if err != nil {
+		return accounts.Account{}, err
+	}
+	return account, nil
 }
 
 func (s *Store) DeleteWallet(name string) error {

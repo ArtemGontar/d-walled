@@ -2,8 +2,6 @@ package network
 
 import (
 	"errors"
-
-	"github.com/ArtemGontar/d-wallet/service/encoding"
 )
 
 var (
@@ -15,14 +13,12 @@ var (
 )
 
 type Network struct {
-	Name        string
-	Level       encoding.LogLevel
-	TokenExpiry encoding.Duration
-	Port        int
-	Host        string
-	API         APIConfig
-	TokenDApp   TokenDAppConfig
-	Console     ConsoleConfig
+	Name      string
+	Port      int
+	Host      string
+	API       APIConfig
+	TokenDApp TokenDAppConfig
+	Console   ConsoleConfig
 }
 
 type APIConfig struct {

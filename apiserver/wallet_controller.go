@@ -38,7 +38,7 @@ import (
 func (s *server) getWalletInfo(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	address := vars["address"]
-	resp, err := wallet.GetWalletInfo(s.walletStore, &wallet.GetWalletInfoRequest{
+	resp, err := wallet.GetWalletInfo(s.walletStore, s.ethclient, &wallet.GetWalletInfoRequest{
 		Address: address,
 	})
 	if err != nil {
