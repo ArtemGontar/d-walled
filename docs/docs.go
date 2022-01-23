@@ -174,6 +174,131 @@ var doc = `{
                 }
             }
         },
+        "/transactions/create": {
+            "post": {
+                "description": "Method for create transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Create Transaction",
+                "parameters": [
+                    {
+                        "description": "The input for create transaction",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wallet.CreateTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Transaction"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/send": {
+            "post": {
+                "description": "Method for send transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Send Transaction",
+                "parameters": [
+                    {
+                        "description": "The input for send transaction",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wallet.SendTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Transaction"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/sign": {
+            "post": {
+                "description": "Method for sign transaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Sign Transaction",
+                "parameters": [
+                    {
+                        "description": "The input for sign transaction",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wallet.SignTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Transaction"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/{blockNumber}": {
+            "get": {
+                "description": "Method for get transactions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Get transactions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "int"
+                        }
+                    }
+                }
+            }
+        },
         "/wallets": {
             "post": {
                 "description": "Method for create wallet",
@@ -237,6 +362,40 @@ var doc = `{
                 }
             }
         },
+        "/wallets/import": {
+            "post": {
+                "description": "Method for import wallet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Import wallet info",
+                "parameters": [
+                    {
+                        "description": "The input for import wallet",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wallet.ImportWalletRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/wallet.ImportWalletResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/wallets/{address}": {
             "get": {
                 "description": "Method for get wallet info",
@@ -277,8 +436,32 @@ var doc = `{
         }
     },
     "definitions": {
+        "big.Float": {
+            "type": "object"
+        },
         "big.Int": {
             "type": "object"
+        },
+        "ecdsa.PrivateKey": {
+            "type": "object",
+            "properties": {
+                "d": {
+                    "$ref": "#/definitions/big.Int"
+                },
+                "elliptic.Curve": {},
+                "x": {
+                    "$ref": "#/definitions/big.Int"
+                }
+            }
+        },
+        "ecdsa.PublicKey": {
+            "type": "object",
+            "properties": {
+                "elliptic.Curve": {},
+                "x": {
+                    "$ref": "#/definitions/big.Int"
+                }
+            }
         },
         "network.DeleteNetworkRequest": {
             "type": "object",
@@ -399,14 +582,39 @@ var doc = `{
                 }
             }
         },
-        "wallet.CreateWalletRequest": {
+        "types.Transaction": {
             "type": "object"
+        },
+        "wallet.CreateTransactionRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "toAddressHex": {
+                    "type": "string"
+                }
+            }
+        },
+        "wallet.CreateWalletRequest": {
+            "type": "object",
+            "properties": {
+                "passphrase": {
+                    "type": "string"
+                }
+            }
         },
         "wallet.CreateWalletResponse": {
             "type": "object",
             "properties": {
                 "address": {
                     "type": "string"
+                },
+                "privateKey": {
+                    "$ref": "#/definitions/ecdsa.PrivateKey"
+                },
+                "publicKey": {
+                    "$ref": "#/definitions/ecdsa.PublicKey"
                 }
             }
         },
@@ -425,7 +633,52 @@ var doc = `{
                     "type": "string"
                 },
                 "balance": {
-                    "$ref": "#/definitions/big.Int"
+                    "$ref": "#/definitions/big.Float"
+                }
+            }
+        },
+        "wallet.ImportWalletRequest": {
+            "type": "object",
+            "properties": {
+                "newPassphrase": {
+                    "type": "string"
+                },
+                "passphrase": {
+                    "description": "File          os.File",
+                    "type": "string"
+                },
+                "privateKey": {
+                    "type": "string"
+                }
+            }
+        },
+        "wallet.ImportWalletResponse": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                }
+            }
+        },
+        "wallet.SendTransactionRequest": {
+            "type": "object",
+            "properties": {
+                "privateKey": {
+                    "type": "string"
+                },
+                "transactionHex": {
+                    "type": "string"
+                }
+            }
+        },
+        "wallet.SignTransactionRequest": {
+            "type": "object",
+            "properties": {
+                "privateKey": {
+                    "type": "string"
+                },
+                "transactionHex": {
+                    "type": "string"
                 }
             }
         }

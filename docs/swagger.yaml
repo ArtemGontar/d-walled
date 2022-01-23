@@ -1,6 +1,22 @@
 basePath: /
 definitions:
+  big.Float:
+    type: object
   big.Int:
+    type: object
+  ecdsa.PrivateKey:
+    properties:
+      d:
+        $ref: '#/definitions/big.Int'
+      elliptic.Curve: {}
+      x:
+        $ref: '#/definitions/big.Int'
+    type: object
+  ecdsa.PublicKey:
+    properties:
+      elliptic.Curve: {}
+      x:
+        $ref: '#/definitions/big.Int'
     type: object
   network.DeleteNetworkRequest:
     properties:
@@ -78,12 +94,28 @@ definitions:
           type: string
         type: array
     type: object
+  types.Transaction:
+    type: object
+  wallet.CreateTransactionRequest:
+    properties:
+      amount:
+        type: integer
+      toAddressHex:
+        type: string
+    type: object
   wallet.CreateWalletRequest:
+    properties:
+      passphrase:
+        type: string
     type: object
   wallet.CreateWalletResponse:
     properties:
       address:
         type: string
+      privateKey:
+        $ref: '#/definitions/ecdsa.PrivateKey'
+      publicKey:
+        $ref: '#/definitions/ecdsa.PublicKey'
     type: object
   wallet.DeleteWalletRequest:
     properties:
@@ -95,7 +127,36 @@ definitions:
       address:
         type: string
       balance:
-        $ref: '#/definitions/big.Int'
+        $ref: '#/definitions/big.Float'
+    type: object
+  wallet.ImportWalletRequest:
+    properties:
+      newPassphrase:
+        type: string
+      passphrase:
+        description: File          os.File
+        type: string
+      privateKey:
+        type: string
+    type: object
+  wallet.ImportWalletResponse:
+    properties:
+      address:
+        type: string
+    type: object
+  wallet.SendTransactionRequest:
+    properties:
+      privateKey:
+        type: string
+      transactionHex:
+        type: string
+    type: object
+  wallet.SignTransactionRequest:
+    properties:
+      privateKey:
+        type: string
+      transactionHex:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -203,6 +264,87 @@ paths:
       summary: Import network info
       tags:
       - networks
+  /transactions/{blockNumber}:
+    get:
+      consumes:
+      - application/json
+      description: Method for get transactions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: int
+      summary: Get transactions
+      tags:
+      - transactions
+  /transactions/create:
+    post:
+      consumes:
+      - application/json
+      description: Method for create transaction
+      parameters:
+      - description: The input for create transaction
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/wallet.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Transaction'
+      summary: Create Transaction
+      tags:
+      - transactions
+  /transactions/send:
+    post:
+      consumes:
+      - application/json
+      description: Method for send transaction
+      parameters:
+      - description: The input for send transaction
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/wallet.SendTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Transaction'
+      summary: Send Transaction
+      tags:
+      - transactions
+  /transactions/sign:
+    post:
+      consumes:
+      - application/json
+      description: Method for sign transaction
+      parameters:
+      - description: The input for sign transaction
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/wallet.SignTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Transaction'
+      summary: Sign Transaction
+      tags:
+      - transactions
   /wallets:
     delete:
       consumes:
@@ -267,6 +409,28 @@ paths:
           schema:
             $ref: '#/definitions/wallet.GetWalletInfoResponse'
       summary: Get wallet info
+      tags:
+      - wallets
+  /wallets/import:
+    post:
+      consumes:
+      - application/json
+      description: Method for import wallet
+      parameters:
+      - description: The input for import wallet
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/wallet.ImportWalletRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/wallet.ImportWalletResponse'
+      summary: Import wallet info
       tags:
       - wallets
 swagger: "2.0"

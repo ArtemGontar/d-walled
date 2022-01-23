@@ -3,13 +3,9 @@ package wallet
 import (
 	"context"
 	"crypto/ecdsa"
-	"io/ioutil"
-	"log"
 	"math"
 	"math/big"
-	"os"
 
-	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
@@ -70,8 +66,8 @@ func CreateWallet(store Store, req *CreateWalletRequest) (*CreateWalletResponse,
 }
 
 type ImportWalletRequest struct {
-	PrivateKey    string
-	File          os.File
+	PrivateKey string
+	//File          os.File
 	Passphrase    string
 	NewPassphrase string
 }
@@ -84,22 +80,12 @@ type ImportWalletResponse struct {
 
 func ImportWallet(store Store, req *ImportWalletRequest) (*ImportWalletResponse, error) {
 	resp := &ImportWalletResponse{}
-	jsonBytes, err := ioutil.ReadFile(req.File.Name())
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	// TODO: find file by address
-	ks := keystore.NewKeyStore("./wallets", keystore.StandardScryptN, keystore.StandardScryptP)
-
-	account, err := ks.Import(jsonBytes, req.Passphrase, req.NewPassphrase)
+	account, err := ImportHDWallet(store, "./wallets/UTC--2022-01-17T06-54-22.515939000Z--7ccddaa5d79dde523de91df0e7ed72e81a8bce5b", req.Passphrase, req.NewPassphrase)
 
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := os.Remove(req.File.Name()); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	resp.Address = account.Address.Hex()
@@ -113,5 +99,32 @@ type DeleteWalletRequest struct {
 }
 
 func DeleteWallet(store Store, req *DeleteWalletRequest) error {
+	return nil
+}
+
+type CreateTransactionRequest struct {
+	ToAddressHex string
+	Amount       int
+}
+
+func CreateTransaction(store Store, req *CreateTransactionRequest) error {
+	return nil
+}
+
+type SignTransactionRequest struct {
+	TransactionHex string
+	PrivateKey     string
+}
+
+func SignTransaction(store Store, req *SignTransactionRequest) error {
+	return nil
+}
+
+type SendTransactionRequest struct {
+	TransactionHex string
+	PrivateKey     string
+}
+
+func SendTransaction(store Store, req *SendTransactionRequest) error {
 	return nil
 }

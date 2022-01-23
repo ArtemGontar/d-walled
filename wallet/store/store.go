@@ -44,10 +44,25 @@ func (s *Store) SaveWallet(passphrase string) (accounts.Account, error) {
 	return account, nil
 }
 
+func (s *Store) ImportWallet(account string, passphrase string, newPassphrase string) (*accounts.Account, error) {
+	// f := s.getWallet(account)
+	// account, err := s.keystore.Import(jsonKey, passphrase, newPassphrase)
+	// if err != nil {
+	// 	return accounts.Account{}, err
+	// }
+	return nil, nil
+}
+
 func (s *Store) DeleteWallet(name string) error {
 	return nil
 }
 
-func (s *Store) GetWalletPath(name string) string {
-	return string("")
+func (s *Store) getWallet(account string) *accounts.Wallet {
+	for _, element := range s.keystore.Wallets() {
+		if element.Accounts()[0].Address.Hex() == account {
+			return &element
+		}
+	}
+
+	return nil
 }

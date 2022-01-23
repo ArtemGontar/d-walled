@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"crypto/ecdsa"
+	"io/ioutil"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -28,8 +29,20 @@ func NewHDWallet(store Store, passphrase string) (*HDWallet, error) {
 
 // ImportHDWallet creates a wallet based on the recovery phrase in input. This
 // is useful import or retrieve a wallet.
-func ImportHDWallet(store Store, privateKey string, passphrase string, newPassphrase string) (*HDWallet, error) {
-	return nil, nil
+func ImportHDWallet(store Store, fileName string, passphrase string, newPassphrase string) (*HDWallet, error) {
+	jsonBytes, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	account, err := store.ImportWallet(jsonBytes, passphrase, newPassphrase)
+	if err != nil {
+		return nil, err
+	}
+
+	return &HDWallet{
+		Address: account.Address,
+	}, nil
 }
 
 func (w *HDWallet) address() common.Address {

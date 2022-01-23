@@ -7,6 +7,7 @@ type Store interface {
 	ListWallets() ([]string, error)
 	GetWallet(privateKey string, passphrase string) (string, error)
 	SaveWallet(passphrase string) (accounts.Account, error)
+	ImportWallet(jsonKey []byte, passphrase string, newPassphrase string) (accounts.Account, error)
 	DeleteWallet(name string) error
 	GetWalletPath(name string) string
 }

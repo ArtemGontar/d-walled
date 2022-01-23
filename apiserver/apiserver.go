@@ -44,7 +44,7 @@ func newServer() *server {
 		return nil
 	}
 
-	ethclient, err := ethclient.DialContext(context.Background(), "")
+	ethclient, err := ethclient.DialContext(context.Background(), "https://ropsten.infura.io/v3/da52061ed5a94d03949fb39417aa8b7e")
 	if err != nil {
 		return nil
 	}
@@ -73,8 +73,14 @@ func (s *server) configureRouter() {
 	//s.router.HandleFunc("/wallets", s.getListWallets).Methods("GET")
 	s.router.HandleFunc("/wallets/{address}", s.getWalletInfo).Methods("GET")
 	s.router.HandleFunc("/wallets", s.createWallet).Methods("POST")
-	//s.router.HandleFunc("/wallets/import", s.importWallet).Methods("POST")
+	s.router.HandleFunc("/wallets/import", s.importWallet).Methods("POST")
 	s.router.HandleFunc("/wallets", s.deleteWallet).Methods("DELETE")
+
+	//transactions
+	s.router.HandleFunc("/transactions/{blockNumber}", s.getTransactions).Methods("GET")
+	s.router.HandleFunc("/transactions/create", s.createTransaction).Methods("POST")
+	s.router.HandleFunc("/transactions/sign", s.signTransaction).Methods("POST")
+	s.router.HandleFunc("/transactions/send", s.sendTransaction).Methods("POST")
 
 	//network
 	s.router.HandleFunc("/networks", s.getNetworks).Methods("GET")
